@@ -1,0 +1,31 @@
+name: kakao-setup
+
+# 카카오톡 알림을 처음 연결할 때(또는 2달 넘게 끊겼을 때) 한 번 실행합니다.
+# 결과 페이지의 "알림 연결 도우미"에서 받은 인증 코드를 붙여 넣으세요. 코드는 몇 분 안에 만료됩니다.
+on:
+  workflow_dispatch:
+    inputs:
+      code:
+        description: "카카오 인증 코드 (페이지에 표시된 값)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: Get token and save
+        env:
+          CODE: ${{ inputs.code }}
+          KAKAO_REST_KEY: ${{ secrets.KAKAO_REST_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          PAGE_URL: ${{ vars.PAGE_URL }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: python kakao_setup.py
