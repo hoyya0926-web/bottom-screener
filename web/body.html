@@ -1,0 +1,133 @@
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="label">미국 · 국내 · 코인(BingX · OKX)</div>
+      <h1>바닥신호 스크리너</h1>
+    </div>
+    <div class="meta">
+      <span>기준 <b id="asof">불러오는 중</b></span>
+      <span>다음 갱신 <b id="next">—</b></span>
+      <span class="legend"><span><span class="sw" style="background:var(--up)"></span>상승</span><span><span class="sw" style="background:var(--down)"></span>하락</span></span>
+    </div>
+  </header>
+
+  <div class="codebox" id="kcode" hidden>
+    <b>카카오 인증 코드를 받았습니다</b>
+    <code id="kcodeval"></code>
+    <div class="row-actions">
+      <button type="button" class="btn" id="kcopy">코드 복사</button>
+      <a class="btn" id="kgo" href="#" target="_blank" rel="noopener" hidden>kakao-setup 실행하러 가기 ↗</a>
+    </div>
+    <span class="mute" style="font-size:13px">GitHub 저장소 Actions → kakao-setup → Run workflow 칸에 붙여 넣고 실행하세요. 코드는 몇 분 안에 만료되니 바로 실행해야 합니다.</span>
+  </div>
+
+  <div class="bar-note" id="status">결과 파일을 불러오는 중입니다.</div>
+
+  <section>
+    <div class="sh">
+      <h2>오늘의 Top 5</h2>
+      <span class="mute">주봉 RSI≤20(중요) → 다이버전스 겹침 → 기타 신호 → 인기도(거래대금) 순</span>
+    </div>
+    <div class="rows" id="top5"></div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>조건 조회</h2><span class="mute" id="capnote"></span></div>
+    <div class="panel">
+      <div class="ctl">
+        <div class="grp"><span class="label">시장</span>
+          <div class="seg" id="mkt">
+            <button type="button" data-v="ALL" aria-pressed="true">전체</button>
+            <button type="button" data-v="US" aria-pressed="false">미국</button>
+            <button type="button" data-v="KR" aria-pressed="false">국내</button>
+            <button type="button" data-v="CR" aria-pressed="false">코인</button>
+          </div>
+        </div>
+        <div class="grp"><label class="label" for="cap">시가총액</label>
+          <select id="cap">
+            <option value="mid" selected>중형 이상 (소형주 제외)</option>
+            <option value="large">대형만</option>
+            <option value="all">전체 (소형 포함)</option>
+          </select>
+        </div>
+        <div class="grp"><span class="label">겹침 조건</span>
+          <div class="seg" id="mode">
+            <button type="button" data-v="and" aria-pressed="true">모두 충족</button>
+            <button type="button" data-v="or" aria-pressed="false">하나라도</button>
+          </div>
+        </div>
+        <div class="grp"><label class="label" for="sort">정렬</label>
+          <select id="sort">
+            <option value="score" selected>점수순</option>
+            <option value="pop">인기순</option>
+            <option value="n">신호 겹침 많은 순</option>
+          </select>
+        </div>
+      </div>
+      <div class="grp">
+        <span class="label">신호 선택 (아무것도 안 고르면 신호 있는 종목 전부)</span>
+        <div class="chips" id="sigs"></div>
+      </div>
+      <div class="grp">
+        <span class="label">중첩 조합별 종목 수 · 누르면 그 조합으로 조회</span>
+        <div class="combos" id="combos"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="list">
+    <div class="sh"><h2>전체 리스트</h2><span class="mute num" id="cnt"></span></div>
+    <div class="rows" id="list"></div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>차트 보는 법과 신호 기준</h2><span class="mute">숫자는 config.py에서 바꿀 수 있습니다.</span></div>
+    <div class="defs">
+      <div class="def"><h3>차트 조작</h3><p>위 버튼으로 <b>1분·15분·1시간·4시간·일봉·주봉·월봉</b>을 바꿉니다. 두 손가락으로 벌리면 확대, 옆으로 밀면 이동, ‘맞춤’은 최근 구간으로 되돌립니다. 아래 칸은 RSI(14)이고 점선은 70·30, 진한 선은 20입니다. 코인의 1분·15분·1시간봉은 OKX에서 실시간으로 받아 30초마다 갱신합니다.</p></div>
+      <div class="def"><h3>RSI 상승 다이버전스</h3><p>RSI(14)는 최근 14개 봉의 오른 폭과 내린 폭을 비교한 0~100 점수입니다. <b>가격 저점은 더 낮아졌는데 RSI 저점은 높아지면</b> 파는 힘이 약해졌다는 뜻입니다. 차트에는 두 저점을 잇는 주황 선으로 표시합니다.</p></div>
+      <div class="def"><h3>주봉 RSI 20 이하 · 중요</h3><p>주봉 RSI가 최근 4주 안에 <b>20 이하</b>로 내려간 종목입니다. 몇 달 동안 거의 매주 빠져야 나오는 숫자라서 드물고, 나오면 맨 위로 올립니다.</p></div>
+      <div class="def"><h3>바닥 거래량 + FVG 되돌림</h3><p>FVG는 급등할 때 생긴 <b>빈 가격 구간</b>입니다. 60일 최저점 근처에서 거래량이 20일 평균의 <b>2.5배 이상</b> 터진 뒤 이 구간이 생기고, 가격이 그 구간까지 다시 내려온 경우입니다. 차트의 ‘FVG’ 점선 두 줄이 그 구간입니다.</p></div>
+      <div class="def"><h3>고점 후 4주 이상 횡보</h3><p>최근 일봉의 고가·저가 폭이 <b>10% 안</b>에 머문 기간이 4주 이상이고, 직전 고점이 박스 상단보다 20% 이상 높은 경우입니다. 차트의 ‘박스’ 점선이 위아래 끝입니다.</p></div>
+      <div class="def"><h3>점수와 인기도</h3><p>주봉 RSI≤20 40점, 다이버전스 주봉 15·일봉 12·4H 8점(셋 다면 +10, 일봉·4H면 +5), FVG 18점, 횡보 12점, 신호 종류가 겹칠 때마다 +5점, 인기도 × 0.3점입니다. 인기도는 시장별 20일 평균 거래대금 순위(0~100)입니다.</p></div>
+    </div>
+  </section>
+
+  <details class="help" id="help">
+    <summary>휴대폰 앱처럼 쓰기 · 알림 연결 도우미</summary>
+    <div class="hb">
+      <div>
+        <h3>홈 화면에 추가</h3>
+        <ol>
+          <li>아이폰 Safari: 아래 공유 버튼 → ‘홈 화면에 추가’</li>
+          <li>안드로이드 Chrome: 오른쪽 위 ⋮ → ‘홈 화면에 추가’ 또는 ‘앱 설치’</li>
+          <li>앱처럼 전체 화면으로 열리고, 매일 09시 이후 새 결과가 보입니다.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>카카오톡 연결</h3>
+        <ol>
+          <li>developers.kakao.com에서 앱을 만들고 REST API 키를 복사합니다.</li>
+          <li>카카오 로그인을 켜고, Redirect URI와 웹 도메인에 이 페이지 주소를 등록합니다: <code id="selfurl"></code></li>
+          <li>동의항목에서 ‘카카오톡 메시지 전송’을 켭니다.</li>
+          <li>REST API 키를 넣고 버튼을 누르면 카카오 로그인 후 이 페이지로 돌아와 인증 코드가 보입니다.</li>
+        </ol>
+        <div class="row-actions" style="margin-top:8px">
+          <input type="text" id="krest" placeholder="REST API 키" autocomplete="off" style="flex:1;min-width:0">
+          <a class="btn" id="kauth" href="#" rel="noopener">카카오 로그인</a>
+        </div>
+        <p class="mute" style="font-size:12px;margin:6px 0 0">키는 이 화면에서 로그인 주소를 만드는 데만 쓰고 어디에도 저장하지 않습니다.</p>
+      </div>
+      <div>
+        <h3>텔레그램 연결</h3>
+        <ol>
+          <li>텔레그램에서 @BotFather에게 <code>/newbot</code> → 이름 정하기 → 토큰 받기</li>
+          <li>만든 봇에게 아무 메시지나 보내기</li>
+          <li><code>api.telegram.org/bot<i>토큰</i>/getUpdates</code>를 열어 <code>"chat":{"id":숫자</code>의 숫자 확인</li>
+          <li>GitHub 저장소 Secrets에 TELEGRAM_TOKEN, TELEGRAM_CHAT_ID로 등록</li>
+        </ol>
+      </div>
+    </div>
+  </details>
+
+  <footer>자동으로 고른 기술적 신호이며 투자 권유가 아닙니다. 시세: Yahoo Finance(주식), OKX(코인). 차트: TradingView Lightweight Charts.</footer>
+</div>
